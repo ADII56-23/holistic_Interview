@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holistic Interview Intelligence | AI Interview Prep</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        dark: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-dark-900 text-white font-sans selection:bg-primary-600/30 selection:text-primary-100">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-dark-900/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl flex items-center justify-center shadow-lg shadow-primary-600/20">
+                    <i data-lucide="brain" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tight">Holistic <span
+                        class="text-primary-600">Interview</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
+                <a href="#" id="nav-home" class="text-white hover:text-white transition-colors">Home</a>
+                <a href="#" id="nav-questions" class="hover:text-white transition-colors">Question Bank</a>
+                <a href="#" id="nav-analytics" class="hover:text-white transition-colors">Analytics</a>
+                <a href="#" id="nav-scheduling"
+                    class="hover:text-white transition-colors text-primary-600 font-bold border-b-2 border-primary-600 pb-1">Scheduling
+                    Hub</a>
+                <button id="nav-login" onclick="window.recorder.showSection('auth')"
+                    class="px-5 py-2.5 bg-white/5 border border-white/10 text-white rounded-lg hover:bg-white/10 transition-all">
+                    Login
+                </button>
+                <div id="user-profile" class="hidden flex items-center gap-3">
+                    <span id="user-email" class="text-xs text-slate-300"></span>
+                    <button onclick="window.recorder.logout()"
+                        class="text-xs text-red-400 hover:text-red-300">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main class="pt-32 pb-20">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="max-w-3xl">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-600/10 border border-primary-600/20 text-primary-600 text-xs font-semibold mb-6">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary-600"></span>
+                    </span>
+                    AI-POWERED INTERVIEW ANALYSIS
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                    Crak Your Next <br />
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-blue-400">Dream
+                        Interview</span>
+                </h1>
+                <p class="text-lg text-slate-400 mb-10 leading-relaxed max-w-2xl">
+                    The world's most advanced AI interview simulator. Join 10,000+ candidates who used Holistic to land
+                    jobs at top tech firms.
+                </p>
+                <div id="heroButtons" class="flex flex-wrap gap-4">
+                    <button id="startPathways"
+                        class="group px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-semibold transition-all shadow-xl shadow-primary-600/25 flex items-center gap-3 active:scale-95">
+                        Choose Your Pathway
+                        <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    <button
+                        class="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-semibold transition-all">
+                        View Success Stories
+                    </button>
+                </div>
+            </div>
+
+            <!-- Trusted By Section -->
+            <div id="trustedBy" class="mt-20 pt-10 border-t border-white/5">
+                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-8">Trusted by candidates
+                    from</p>
+                <div class="flex flex-wrap gap-12 opacity-30 grayscale hover:opacity-50 transition-opacity">
+                    <span class="text-xl font-bold tracking-tighter">GOOGLE</span>
+                    <span class="text-xl font-bold tracking-tighter">META</span>
+                    <span class="text-xl font-bold tracking-tighter">AMAZON</span>
+                    <span class="text-xl font-bold tracking-tighter">APPLE</span>
+                    <span class="text-xl font-bold tracking-tighter">NETFLIX</span>
+                </div>
+            </div>
+
+            <!-- Pathway Selection (Hidden by default) -->
+            <div id="pathwaySection" class="hidden mt-20 animate-fade-in max-w-5xl mx-auto">
+                <div class="mb-16 text-center">
+                    <h2 class="text-4xl font-bold mb-4">Choose Your Simulation Path</h2>
+                    <p class="text-slate-400">Personalize your practice based on your career goals.</p>
+                </div>
+
+                <!-- NEW: Job Description Input for custom tailoring -->
+                <!-- NEW: Contextual Inputs for custom tailoring -->
+                <div
+                    class="mb-16 p-10 rounded-[2.5rem] glass-subtle border border-white/5 relative overflow-hidden group">
+                    <div class="absolute -right-20 -top-20 w-64 h-64 bg-primary-600/5 rounded-full blur-3xl"></div>
+                    <div class="relative z-10 grid md:grid-cols-2 gap-16 items-start">
+                        <!-- Column 1: Job Description -->
+                        <div class="space-y-6">
+                            <div
+                                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-600/10 border border-primary-600/20 text-primary-600 text-[10px] font-bold uppercase tracking-widest">
+                                <i data-lucide="briefcase" class="w-3 h-3"></i> Target Role
+                            </div>
+                            <h3 class="text-2xl font-bold">Job Description</h3>
+                            <textarea id="jdInput" rows="4"
+                                class="w-full bg-dark-900/50 border border-white/10 rounded-2xl p-6 text-sm focus:outline-none focus:border-primary-600 transition-all placeholder:text-slate-600"
+                                placeholder="Paste the job description here..."></textarea>
+                        </div>
+
+                        <!-- Column 2: Resume Analysis -->
+                        <div class="space-y-6">
+                            <div
+                                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-600/10 border border-indigo-600/20 text-indigo-400 text-[10px] font-bold uppercase tracking-widest">
+                                <i data-lucide="file-text" class="w-3 h-3"></i> Experience Context
+                            </div>
+                            <h3 class="text-2xl font-bold">Resume Analysis</h3>
+                            <div class="relative">
+                                <input type="file" id="resumeUpload"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                                    accept=".pdf,.doc,.docx,.txt" onchange="window.recorder.handleResumeUpload(this)">
+                                <div id="resumeDropzone"
+                                    class="p-8 border-2 border-dashed border-white/10 rounded-2xl bg-dark-900/50 flex flex-col items-center justify-center text-center group-hover:border-primary-600/30 transition-all">
+                                    <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-4">
+                                        <i data-lucide="upload-cloud" class="w-6 h-6 text-slate-400"></i>
+                                    </div>
+                                    <p class="text-xs text-slate-400 font-medium">Click to upload or drag & drop</p>
+                                    <p class="text-[10px] text-slate-600 mt-2">PDF, DOCX, or TXT (Max 5MB)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Button for both -->
+                    <div class="mt-12 pt-10 border-t border-white/5 flex justify-center">
+                        <button onclick="window.recorder.generatePersonalizedChallenges()"
+                            class="px-12 py-5 bg-white text-dark-900 rounded-[2rem] font-bold hover:bg-slate-200 transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-white/5">
+                            <i data-lucide="sparkles" class="w-5 h-5 text-primary-600"></i>
+                            Generate Personalized Challenges
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div onclick="window.recorder.selectPathway('easy')"
+                        class="p-8 rounded-3xl glass border border-white/5 hover:border-primary-600/50 transition-all cursor-pointer group text-center">
+                        <div
+                            class="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
+                            <i data-lucide="leaf" class="w-8 h-8 text-green-500"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Beginner</h3>
+                        <p class="text-sm text-slate-400">Master the fundamentals and common HR questions.</p>
+                    </div>
+                    <div onclick="window.recorder.selectPathway('medium')"
+                        class="p-8 rounded-3xl glass border border-white/5 hover:border-primary-600/50 transition-all cursor-pointer group text-center">
+                        <div
+                            class="w-16 h-16 bg-primary-600/10 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
+                            <i data-lucide="zap" class="w-8 h-8 text-primary-600"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Intermediate</h3>
+                        <p class="text-sm text-slate-400">Deep dive into behavioral and domain-specific challenges.</p>
+                    </div>
+                    <div onclick="window.recorder.selectPathway('hard')"
+                        class="p-8 rounded-3xl glass border border-white/5 hover:border-primary-600/50 transition-all cursor-pointer group text-center">
+                        <div
+                            class="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
+                            <i data-lucide="sword" class="w-8 h-8 text-orange-500"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Advanced</h3>
+                        <p class="text-sm text-slate-400">High-stakes simulation for senior and executive roles.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Bank (Hidden by default) -->
+            <div id="questionsSection" class="hidden mt-32">
+                <div class="flex items-center justify-between mb-12">
+                    <div>
+                        <h2 class="text-4xl font-bold mb-2">Practice Library</h2>
+                        <p class="text-slate-400">Select a question to start your AI-powered practice session.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <select id="filterCategory"
+                            class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary-600 transition-all">
+                            <option value="">All Categories</option>
+                            <option value="behavioral">Behavioral</option>
+                            <option value="technical">Technical</option>
+                            <option value="hr">HR</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="questionsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Questions will be injected here -->
+                </div>
+            </div>
+
+            <!-- Interview Simulation Room (Hidden) -->
+            <div id="interviewRoom" class="hidden mt-10 relative min-h-[600px] overflow-hidden rounded-[3rem] glass">
+                <!-- Simulation Overlay for Instructions/AI Dialog -->
+                <div id="simulationOverlay"
+                    class="absolute inset-0 z-50 flex items-center justify-center bg-dark-900/90 backdrop-blur-md transition-all duration-700">
+                    <div id="simulationSlides" class="max-w-xl text-center p-12 space-y-8">
+                        <!-- Slide 1: Welcome -->
+                        <div id="slide-welcome" class="slide animate-fade-in">
+                            <div
+                                class="w-20 h-20 bg-primary-600 rounded-2xl mx-auto flex items-center justify-center mb-8 shadow-2xl shadow-primary-600/40">
+                                <i data-lucide="mic" class="w-10 h-10 text-white"></i>
+                            </div>
+                            <h3 class="text-3xl font-bold mb-4">Ready to Begin?</h3>
+                            <p class="text-slate-400 leading-relaxed mb-8">Professional interviews are about confidence
+                                and structure. Your AI interviewer is ready to evaluate your performance.</p>
+                            <button onclick="window.recorder.nextSlide()"
+                                class="px-10 py-4 bg-primary-600 text-white rounded-2xl font-bold hover:bg-primary-700 transition-all shadow-xl shadow-primary-600/20 active:scale-95">
+                                Enter Room
+                            </button>
+                        </div>
+
+                        <!-- Slide 2: Guidelines -->
+                        <div id="slide-guidelines" class="slide hidden animate-fade-in">
+                            <h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary-600 mb-2">
+                                Instructions</h4>
+                            <h3 class="text-3xl font-bold mb-8">Interaction Guidelines</h3>
+                            <div class="grid gap-4 text-left">
+                                <div class="p-5 rounded-2xl bg-white/5 border border-white/5 flex items-start gap-4">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+                                        <i data-lucide="video" class="w-4 h-4 text-green-500"></i>
+                                    </div>
+                                    <p class="text-sm text-slate-300">Maintain eye contact with the <span
+                                            class="text-white font-bold">top camera center</span>.</p>
+                                </div>
+                                <div class="p-5 rounded-2xl bg-white/5 border border-white/5 flex items-start gap-4">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                                        <i data-lucide="layers" class="w-4 h-4 text-blue-500"></i>
+                                    </div>
+                                    <p class="text-sm text-slate-300">Use the <span class="text-white font-bold">STAR
+                                            method</span>: Situation, Task, Action, Result.</p>
+                                </div>
+                            </div>
+                            <button onclick="window.recorder.nextSlide()"
+                                class="mt-8 px-10 py-4 bg-white text-dark-900 rounded-2xl font-bold hover:bg-slate-200 transition-all active:scale-95">
+                                I'm Ready
+                            </button>
+                        </div>
+
+                        <!-- Slide 3: AI Questioning -->
+                        <div id="slide-questioning" class="slide hidden animate-fade-in text-center">
+                            <div class="mb-10 relative inline-block">
+                                <div
+                                    class="w-24 h-24 bg-gradient-to-br from-primary-600 to-indigo-600 rounded-3xl flex items-center justify-center shadow-2xl animate-pulse-slow">
+                                    <i data-lucide="bot" class="w-12 h-12 text-white"></i>
+                                </div>
+                                <div class="absolute -inset-4 bg-primary-600/20 rounded-full blur-xl animate-pulse">
+                                </div>
+                            </div>
+                            <h4 class="text-primary-600 font-bold uppercase tracking-widest text-xs mb-4">Interviewer is
+                                speaking...</h4>
+                            <p id="aiSpeakingText" class="text-2xl font-bold italic text-white/90 leading-snug"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Interview Content (Starts Blurred) -->
+                <div id="roomContent"
+                    class="p-10 transition-all duration-1000 filter blur-xl grid lg:grid-cols-2 gap-10 items-center">
+                    <!-- AI Interviewer Side -->
+                    <div class="space-y-6 text-center lg:text-left">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-600/10 border border-primary-600/20 text-primary-600 text-[10px] font-bold uppercase tracking-widest mb-4">
+                            Live Interviewer
+                        </div>
+                        <div id="aiAvatarRoom"
+                            class="w-24 h-24 bg-gradient-to-br from-primary-600 to-indigo-600 rounded-3xl mx-auto lg:mx-0 flex items-center justify-center shadow-2xl shadow-primary-600/20">
+                            <i data-lucide="user" class="w-12 h-12 text-white"></i>
+                        </div>
+                        <h2 id="roomQuestionText" class="text-3xl font-bold leading-tight"></h2>
+                        <p class="text-slate-400">Speak clearly. We are analyzing your verbal and non-verbal cues in
+                            real-time.</p>
+
+                        <!-- Real-time metrics placeholders -->
+                        <div class="flex gap-4 pt-10">
+                            <div class="px-4 py-3 rounded-2xl bg-white/5 border border-white/5 flex items-center gap-3">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span class="text-xs font-medium text-slate-300">Voice Active</span>
+                            </div>
+                            <div class="px-4 py-3 rounded-2xl bg-white/5 border border-white/5 flex items-center gap-3">
+                                <span class="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
+                                <span class="text-xs font-medium text-slate-300">Gaze Tracking</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Candidate Side -->
+                    <div class="relative group">
+                        <div id="videoContainerRoom"
+                            class="aspect-video rounded-3xl overflow-hidden glass p-1 relative border border-white/10 group-hover:border-primary-600/30 transition-all">
+                            <!-- Video preview will be moved here -->
+
+                            <!-- Phase 9: Real-time Performance Overlay -->
+                            <div id="performanceMetrics"
+                                class="absolute left-6 top-6 bottom-6 w-48 z-10 transition-all duration-500 opacity-0 translate-x-[-20px] pointer-events-none">
+                                <div class="h-full flex flex-col justify-between">
+                                    <!-- Confidence Meter -->
+                                    <div class="glass-subtle p-4 rounded-2xl border border-white/10 space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <span
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Confidence</span>
+                                            <span id="confidenceVal"
+                                                class="text-[10px] font-bold text-primary-600">88%</span>
+                                        </div>
+                                        <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                            <div id="confidenceBar"
+                                                class="h-full bg-primary-600 transition-all duration-1000"
+                                                style="width: 88%"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Eye Contact Indicator -->
+                                    <div
+                                        class="glass-subtle p-4 rounded-2xl border border-white/10 flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center transition-colors"
+                                            id="eyeContactIcon">
+                                            <i data-lucide="eye" class="w-4 h-4 text-indigo-400"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                                Eye Contact</p>
+                                            <p id="eyeContactStatus" class="text-[10px] font-bold text-green-500">
+                                                OPTIMAL</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pace / Tone -->
+                                    <div class="glass-subtle p-4 rounded-2xl border border-white/10 space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <span
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Speaking
+                                                Pace</span>
+                                        </div>
+                                        <div class="flex items-center gap-1 h-4">
+                                            <div class="pace-bar h-1 w-2 bg-white/20 rounded-full animate-pulse"></div>
+                                            <div class="pace-bar h-2 w-2 bg-white/20 rounded-full animate-pulse"
+                                                style="animation-delay: 0.1s"></div>
+                                            <div class="pace-bar h-3 w-2 bg-primary-600 rounded-full animate-pulse"
+                                                style="animation-delay: 0.2s"></div>
+                                            <div class="pace-bar h-2 w-2 bg-white/20 rounded-full animate-pulse"
+                                                style="animation-delay: 0.3s"></div>
+                                            <div class="pace-bar h-1 w-2 bg-white/20 rounded-full animate-pulse"
+                                                style="animation-delay: 0.4s"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Suggestion Bubble -->
+                            <div id="liveSuggestion"
+                                class="absolute bottom-6 right-6 left-56 z-10 transition-all duration-500 opacity-0 translate-y-[10px] pointer-events-none">
+                                <div
+                                    class="glass-subtle px-6 py-4 rounded-2xl border border-primary-600/20 flex items-center gap-4">
+                                    <div
+                                        class="w-6 h-6 rounded-lg bg-primary-600/10 flex items-center justify-center shrink-0">
+                                        <i data-lucide="sparkles" class="w-3 h-3 text-primary-600"></i>
+                                    </div>
+                                    <p id="liveSuggestionText" class="text-[11px] font-medium text-slate-300">"Good
+                                        start! Keep maintainting eye contact."</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="recordingTimerRoom"
+                            class="absolute top-6 right-6 px-4 py-2 bg-red-600 rounded-full text-xs font-bold flex items-center gap-2 hidden">
+                            <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                            00:00
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 flex justify-center">
+                    <button id="stopRoomRecording"
+                        class="px-10 py-5 bg-white text-dark-900 hover:bg-slate-200 rounded-2xl font-bold transition-all shadow-2xl active:scale-95 flex items-center gap-3">
+                        <i data-lucide="square" class="w-5 h-5 text-red-600"></i>
+                        Finish Interview
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features Grid (Original Home Content) -->
+            <div id="homeFeatures" class="grid md:grid-cols-3 gap-6 mt-32">
+                <div
+                    class="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-primary-600/30 transition-all group">
+                    <div
+                        class="w-12 h-12 bg-primary-600/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary-600 transition-all">
+                        <i data-lucide="mic" class="w-6 h-6 text-primary-600 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Speech Analysis</h3>
+                    <p class="text-slate-400 leading-relaxed">
+                        Track filler words, pace, and clarity. Whisper-powered transcription ensures 99% accuracy.
+                    </p>
+                </div>
+                <div
+                    class="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-primary-600/30 transition-all group">
+                    <div
+                        class="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-all">
+                        <i data-lucide="eye" class="w-6 h-6 text-blue-600 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Body Language</h3>
+                    <p class="text-slate-400 leading-relaxed">
+                        Detect eye contact, posture, and facial expressions using real-time MediaPipe analysis.
+                    </p>
+                </div>
+                <div
+                    class="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-primary-600/30 transition-all group">
+                    <div
+                        class="w-12 h-12 bg-indigo-600/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-600 transition-all">
+                        <i data-lucide="sparkles" class="w-6 h-6 text-indigo-600 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Content Feedback</h3>
+                    <p class="text-slate-400 leading-relaxed">
+                        Our LLMs evaluate the quality and relevance of your answers using the STAR method.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Phase 11: Interview Scheduling & Coordination Hub -->
+            <div id="schedulingSection" class="hidden mt-32">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+                    <div>
+                        <h2 class="text-4xl font-bold mb-2">Scheduling <span class="text-primary-600">Hub</span></h2>
+                        <p class="text-slate-400">Manage your real-world interviews, set reminders, and log your
+                            journey.</p>
+                    </div>
+                    <button onclick="document.getElementById('modal-add-interview').classList.remove('hidden')"
+                        class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold transition-all shadow-lg flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                        Add New Interview
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left: Pipeline / Status Tracker -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="glass p-8 rounded-3xl">
+                            <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                                <i data-lucide="layout-list" class="text-primary-600"></i>
+                                Interview Pipeline
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div class="p-4 bg-white/5 border border-white/5 rounded-2xl">
+                                    <div class="text-xs font-semibold text-slate-500 uppercase mb-2">Applied</div>
+                                    <div class="text-2xl font-bold">12</div>
+                                </div>
+                                <div class="p-4 bg-primary-600/10 border border-primary-600/20 rounded-2xl">
+                                    <div class="text-xs font-semibold text-primary-400 uppercase mb-2">Interviewing
+                                    </div>
+                                    <div class="text-2xl font-bold text-primary-400">4</div>
+                                </div>
+                                <div class="p-4 bg-amber-600/10 border border-amber-600/20 rounded-2xl">
+                                    <div class="text-xs font-semibold text-amber-400 uppercase mb-2">Follow-up</div>
+                                    <div class="text-2xl font-bold text-amber-400">2</div>
+                                </div>
+                                <div class="p-4 bg-emerald-600/10 border border-emerald-600/20 rounded-2xl">
+                                    <div class="text-xs font-semibold text-emerald-400 uppercase mb-2">Offer</div>
+                                    <div class="text-2xl font-bold text-emerald-400">1</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Interviews List -->
+                        <div class="glass p-8 rounded-3xl">
+                            <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                                <i data-lucide="calendar" class="text-primary-600"></i>
+                                Scheduled Interviews
+                            </h3>
+                            <div class="space-y-4" id="scheduled-interviews-list">
+                                <div
+                                    class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group">
+                                    <div class="flex items-center gap-5">
+                                        <div
+                                            class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-primary-600/50">
+                                            <i data-lucide="building-2"
+                                                class="w-6 h-6 text-slate-400 group-hover:text-primary-400"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold">Senior Web Developer</h4>
+                                            <p class="text-sm text-slate-400">Google • Tomorrow, 10:00 AM</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span
+                                            class="px-3 py-1 bg-primary-600/20 text-primary-400 text-[10px] font-bold uppercase rounded-full tracking-wider">Round
+                                            2</span>
+                                        <button
+                                            class="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-all">
+                                            <i data-lucide="edit" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Prep Quick Actions -->
+                    <div class="space-y-8">
+                        <div
+                            class="glass p-8 rounded-3xl bg-gradient-to-br from-primary-600/20 to-transparent border-primary-600/20">
+                            <h3 class="text-xl font-bold mb-4">Prep Checklist</h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-center gap-3 text-sm">
+                                    <input type="checkbox" checked
+                                        class="w-5 h-5 rounded-lg border-white/10 bg-white/5 text-primary-600 focus:ring-primary-600">
+                                    <span>Research company values</span>
+                                </li>
+                                <li class="flex items-center gap-3 text-sm">
+                                    <input type="checkbox"
+                                        class="w-5 h-5 rounded-lg border-white/10 bg-white/5 text-primary-600 focus:ring-primary-600">
+                                    <span>Prepare 3 STAR stories</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="glass p-8 rounded-3xl border-white/5">
+                            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                                <i data-lucide="clipboard-check" class="text-emerald-500"></i>
+                                Quick Debrief
+                            </h3>
+                            <textarea placeholder="How did it go? Main questions asked..."
+                                class="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-primary-600 min-h-[100px] mb-4"></textarea>
+                            <button
+                                class="w-full py-3 bg-white/5 border border-white/10 rounded-xl font-bold text-sm hover:bg-white/10 transition-all">
+                                Save Debrief
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Interview Modal -->
+            <div id="modal-add-interview" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-dark-900/60 backdrop-blur-sm"
+                    onclick="this.parentElement.classList.add('hidden')"></div>
+                <div
+                    class="relative w-full max-w-md bg-dark-800 border border-white/10 rounded-[2.5rem] shadow-2xl p-8 animate-fade-in">
+                    <h3 class="text-2xl font-bold mb-6">Schedule Interview</h3>
+                    <div class="space-y-4">
+                        <input type="text" placeholder="Company Name"
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-primary-600 focus:outline-none">
+                        <input type="text" placeholder="Role Title"
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-primary-600 focus:outline-none">
+                        <input type="date"
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-primary-600 focus:outline-none">
+                        <button onclick="this.closest('#modal-add-interview').classList.add('hidden')"
+                            class="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold shadow-xl shadow-primary-600/20 transition-all">
+                            Confirm Schedule
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auth Section -->
+            <div id="authSection" class="hidden mt-32">
+                <div class="max-w-md mx-auto p-8 rounded-3xl glass">
+                    <div id="loginForm">
+                        <h3 class="text-2xl font-bold mb-6">Welcome Back</h3>
+                        <div class="space-y-4">
+                            <input type="email" id="loginEmail" placeholder="Email Address"
+                                class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-primary-600 transition-all">
+                            <input type="password" id="loginPassword" placeholder="Password"
+                                class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-primary-600 transition-all">
+                            <button onclick="window.recorder.login()"
+                                class="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-semibold transition-all shadow-xl shadow-primary-600/20">Login</button>
+                        </div>
+                        <p class="mt-6 text-center text-sm text-slate-400">Don't have an account? <a href="#"
+                                onclick="window.recorder.toggleAuth(false)" class="text-primary-600">Sign Up</a></p>
+                    </div>
+                    <div id="signupForm" class="hidden">
+                        <h3 class="text-2xl font-bold mb-6">Create Account</h3>
+                        <div class="space-y-4">
+                            <input type="email" id="signupEmail" placeholder="Email Address"
+                                class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-primary-600 transition-all">
+                            <input type="password" id="signupPassword" placeholder="Password"
+                                class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-primary-600 transition-all">
+                            <button onclick="window.recorder.signup()"
+                                class="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-semibold transition-all shadow-xl shadow-primary-600/20">Sign
+                                Up</button>
+                        </div>
+                        <p class="mt-6 text-center text-sm text-slate-400">Already have an account? <a href="#"
+                                onclick="window.recorder.toggleAuth(true)" class="text-primary-600">Login</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics/History Section -->
+            <div id="analyticsSection" class="hidden mt-32">
+                <h2 class="text-4xl font-bold mb-12 text-center">Your Growth Journey</h2>
+                <div class="grid md:grid-cols-2 gap-8" id="historyGrid">
+                    <!-- History cards injected here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- App Logic -->
+    <script src="js/app.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

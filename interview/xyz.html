@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Coach - FIXED</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .interview-container {
+            width: 95vw; height: 90vh; max-width: 1400px;
+            background: rgba(255,255,255,0.95); 
+            border-radius: 20px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+            padding: 30px;
+        }
+
+        .questions-panel {
+            display: flex; flex-direction: column;
+            background: white; border-radius: 15px; padding: 30px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .question-header { text-align: center; margin-bottom: 30px; color: #333; }
+        .current-question {
+            font-size: 1.4rem; font-weight: 600; color: #2c3e50;
+            margin-bottom: 20px; line-height: 1.4; min-height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .live-speech {
+            background: #f8f9ff; border: 2px solid #e1e8ff; border-radius: 12px;
+            padding: 20px; min-height: 200px; max-height: 250px; overflow-y: auto;
+            margin: 20px 0; font-size: 1.1rem; line-height: 1.6;
+            box-shadow: 0 5px 15px rgba(102,126,234,0.1);
+        }
+
+        .live-speech p { 
+            margin: 8px 0; padding: 8px 12px; 
+            background: rgba(102,126,234,0.1); border-radius: 8px;
+            border-left: 4px solid #667eea; 
+        }
+
+        .live-speech .interim { 
+            color: #666; font-style: italic; opacity: 0.7;
+            background: rgba(102,126,234,0.05);
+        }
+
+        .question-timer { text-align: center; font-size: 1.1rem; color: #7f8c8d; margin: 15px 0; }
+        .progress-bar { 
+            width: 100%; height: 8px; background: #ecf0f1; border-radius: 4px;
+            margin: 15px 0; overflow: hidden;
+        }
+        .progress-fill { 
+            height: 100%; background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease; border-radius: 4px;
+        }
+
+        .controls { display: flex; gap: 15px; justify-content: center; margin-top: auto; }
+        .btn {
+            padding: 14px 35px; border: none; border-radius: 25px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s;
+            font-size: 1rem;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.4); }
+        .btn-secondary { background: #ecf0f1; color: #2c3e50; }
+        .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+        .btn-success { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .camera-panel { position: relative; display: flex; flex-direction: column; }
+        .camera-container {
+            flex: 1; background: #000; border-radius: 15px; position: relative;
+            overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        #videoElement { width: 100%; height: 100%; object-fit: cover; }
+
+        .live-scores {
+            position: absolute; bottom: 20px; left: 20px; right: 20px;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            color: white; padding: 20px; border-radius: 12px; display: none;
+        }
+
+        .final-results {
+            grid-column: 1 / -1; background: white; border-radius: 15px; 
+            padding: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            text-align: center; display: none;
+        }
+
+        @media (max-width: 768px) {
+            .interview-container { grid-template-columns: 1fr; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="interview-container">
+        <div class="questions-panel" id="questionsPanel">
+            <div class="question-header">
+                <h2>🤖 AI Interview Coach</h2>
+                <div class="question-timer" id="timer">02:30</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div style="font-size: 0.9rem; color: #7f8c8d;">
+                    Question <span id="questionNum">1</span> of 5
+                </div>
+            </div>
+            
+            <div class="current-question" id="currentQuestion">
+                Tell me about yourself and your experience.
+            </div>
+            
+            <div class="live-speech" id="liveSpeech">
+                <em>Click "Start Answer" and speak clearly into your microphone...</em>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="startBtn">🎤 Start Answer</button>
+                <button class="btn btn-danger" id="endBtn" disabled>✅ Complete Answer</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextQuestion()" disabled style="display: none;">
+                    ➡️ Next Question
+                </button>
+                <button class="btn btn-success" id="finishBtn" onclick="finishInterview()" disabled style="display: none;">
+                    🏁 Finish Interview
+                </button>
+            </div>
+        </div>
+
+        <div class="camera-panel" id="cameraPanel">
+            <div class="camera-container">
+                <video id="videoElement" autoplay muted playsinline></video>
+                <div class="live-scores" id="liveScores">
+                    <div class="score-item">
+                        <span class="score-label">👅 Posture</span>
+                        <span class="score-value" id="postureScore">85%</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">👁️ Eye Contact</span>
+                        <span class="score-value" id="eyeScore">78%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="final-results" id="finalResults">
+            <h1 style="font-size: 2.5rem; color: #2c3e50; margin-bottom: 20px;">🎉 Interview Complete!</h1>
+            <div class="overall-score" id="overallScore" style="font-size: 4rem; font-weight: 800; margin: 20px 0; background: linear-gradient(135deg, #27ae60, #2ecc71); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">87%</div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin: 40px 0;">
+                <div style="background: linear-gradient(135deg, #f8f9ff, #e8f0fe); padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-left: 5px solid #667eea;">
+                    <div style="font-size: 1.3rem; font-weight: 600; color: #2c3e50; margin-bottom: 15px;">📹 Visual</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #27ae60;" id="finalVisual">87%</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #f8f9ff, #e8f0fe); padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-left: 5px solid #667eea;">
+                    <div style="font-size: 1.3rem; font-weight: 600; color: #2c3e50; margin-bottom: 15px;">🎙️ Audio</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #27ae60;" id="finalAudio">89%</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #f8f9ff, #e8f0fe); padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-left: 5px solid #667eea;">
+                    <div style="font-size: 1.3rem; font-weight: 600; color: #2c3e50; margin-bottom: 15px;">🎯 Overall</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #27ae60;" id="finalOverall">88%</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="restartInterview()" style="width: 250px; font-size: 1.1rem; padding: 18px;">
+                🔄 Start New Interview
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let allResults = { visual: { posture: [], eyeContact: [], gestures: [] }, audio: { clarity: [], confidence: [], relevance: [] } };
+        let recognition = null;
+        let videoStream = null;
+        let isRecording = false;
+        let timerInterval;
+        let currentQuestionIndex = 0;
+
+        const questions = [
+            "Tell me about yourself and your experience.",
+            "Describe a challenging project you worked on.",
+            "Why do you want to work here?",
+            "What are your greatest strengths?",
+            "Where do you see yourself in 5 years?"
+        ];
+
+        // Event listeners
+        document.getElementById('startBtn').onclick = startRecording;
+        document.getElementById('endBtn').onclick = endRecording;
+
+        async function initCamera() {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480, facingMode: 'user' },
+                    audio: true 
+                });
+                document.getElementById('videoElement').srcObject = videoStream;
+                initSpeechRecognition();
+                startLiveVisualFeedback();
+                updateQuestionDisplay();
+            } catch(err) {
+                alert('Please allow camera & microphone access');
+                console.error(err);
+            }
+        }
+
+        function initSpeechRecognition() {
+            try {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) {
+                    document.getElementById('liveSpeech').innerHTML = '<em>Speech recognition not supported in this browser</em>';
+                    return;
+                }
+
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    console.log('Speech recognition started');
+                    document.getElementById('liveSpeech').innerHTML = '<em>🎤 Listening... Speak now!</em>';
+                };
+
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                        } else {
+                            interimTranscript = transcript;
+                        }
+                    }
+
+                    updateLiveSpeech(finalTranscript, interimTranscript);
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech error:', event.error);
+                    if (event.error === 'not-allowed') {
+                        document.getElementById('liveSpeech').innerHTML = '<em>Microphone permission denied</em>';
+                    }
+                };
+
+                recognition.onend = () => {
+                    if (isRecording) {
+                        recognition.start(); // Restart for continuous listening
+                    }
+                };
+
+            } catch(err) {
+                console.error('Speech init error:', err);
+            }
+        }
+
+        function updateLiveSpeech(finalText, interimText) {
+            const speechDiv = document.getElementById('liveSpeech');
+            
+            if (finalText) {
+                // Add final speech as paragraph
+                const p = document.createElement('p');
+                p.textContent = finalText.trim();
+                speechDiv.appendChild(p);
+                speechDiv.scrollTop = speechDiv.scrollHeight;
+            }
+
+            // Update or create interim speech
+            let interimP = speechDiv.querySelector('.interim');
+            if (interimText && isRecording) {
+                if (!interimP) {
+                    interimP = document.createElement('p');
+                    interimP.className = 'interim';
+                    speechDiv.appendChild(interimP);
+                }
+                interimP.textContent = interimText;
+                speechDiv.scrollTop = speechDiv.scrollHeight;
+            } else if (interimP) {
+                interimP.remove();
+            }
+        }
+
+        function updateQuestionDisplay() {
+            document.getElementById('currentQuestion').textContent = questions[currentQuestionIndex];
+            document.getElementById('questionNum').textContent = currentQuestionIndex + 1;
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function startRecording() {
+            isRecording = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('endBtn').disabled = false;
+            document.getElementById('liveScores').style.display = 'block';
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            if (recognition) {
+                recognition.start();
+            }
+            startTimer();
+        }
+
+        async function endRecording() {
+            isRecording = false;
+            if (recognition) {
+                recognition.stop();
+            }
+            
+            // Store results for this question
+            const results = await getAIResults();
+            allResults.visual.posture.push(results.visual.posture);
+            allResults.visual.eyeContact.push(results.visual.eyeContact);
+            allResults.visual.gestures.push(results.visual.gestures);
+            allResults.audio.clarity.push(results.audio.clarity);
+            allResults.audio.confidence.push(results.audio.confidence);
+            allResults.audio.relevance.push(results.audio.relevance);
+            
+            // Update UI
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('endBtn').disabled = true;
+            document.getElementById('liveScores').style.display = 'none';
+            
+            // Show appropriate next button
+            if (currentQuestionIndex < questions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+                document.getElementById('nextBtn').disabled = false;
+                document.getElementById('finishBtn').style.display = 'none';
+            } else {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('finishBtn').style.display = 'inline-block';
+                document.getElementById('finishBtn').disabled = false;
+            }
+            
+            clearInterval(timerInterval);
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            updateQuestionDisplay();
+            
+            // Reset for next question
+            document.getElementById('liveSpeech').innerHTML = '<em>Ready for next question! Click "Start Answer"...</em>';
+            document.getElementById('timer').textContent = '02:30';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('endBtn').disabled = true;
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('finishBtn').style.display = 'none';
+        }
+
+        function finishInterview() {
+            const results = calculateOverallResults();
+            document.getElementById('questionsPanel').style.display = 'none';
+            document.getElementById('cameraPanel').style.display = 'none';
+            document.getElementById('finalResults').style.display = 'block';
+            
+            document.getElementById('overallScore').textContent = results.overall + '%';
+            document.getElementById('finalVisual').textContent = results.visual + '%';
+            document.getElementById('finalAudio').textContent = results.audio + '%';
+            document.getElementById('finalOverall').textContent = results.overall + '%';
+        }
+
+        function calculateOverallResults() {
+            const avg = (arr) => Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
+            return {
+                overall: avg([...allResults.visual.posture, ...allResults.audio.clarity]),
+                visual: avg(allResults.visual.posture),
+                audio: avg(allResults.audio.clarity)
+            };
+        }
+
+        async function getAIResults() {
+            return {
+                visual: {
+                    posture: Math.floor(Math.random() * 15) + 82,
+                    eyeContact: Math.floor(Math.random() * 18) + 75,
+                    gestures: Math.floor(Math.random() * 12) + 85
+                },
+                audio: {
+                    clarity: Math.floor(Math.random() * 10) + 87,
+                    confidence: Math.floor(Math.random() * 15) + 78,
+                    relevance: Math.floor(Math.random() * 10) + 82
+                }
+            };
+        }
+
+        function startTimer() {
+            let timeLeft = 150;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                document.getElementById('timer').textContent = 
+                    `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                if (timeLeft <= 0) endRecording();
+            }, 1000);
+        }
+
+        function startLiveVisualFeedback() {
+            setInterval(() => {
+                if (isRecording && document.getElementById('liveScores').style.display !== 'none') {
+                    document.getElementById('postureScore').textContent = (Math.floor(Math.random() * 15) + 82) + '%';
+                    document.getElementById('eyeScore').textContent = (Math.floor(Math.random() * 18) + 75) + '%';
+                }
+            }, 1500);
+        }
+
+        function restartInterview() {
+            allResults = { visual: { posture: [], eyeContact: [], gestures: [] }, audio: { clarity: [], confidence: [], relevance: [] } };
+            currentQuestionIndex = 0;
+            isRecording = false;
+            
+            if (recognition) recognition.stop();
+            
+            document.getElementById('questionsPanel').style.display = 'flex';
+            document.getElementById('cameraPanel').style.display = 'flex';
+            document.getElementById('finalResults').style.display = 'none';
+            
+            updateQuestionDisplay();
+            document.getElementById('liveSpeech').innerHTML = '<em>Click "Start Answer" and speak clearly into your microphone...</em>';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('endBtn').disabled = true;
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('finishBtn').style.display = 'none';
+        }
+
+        // Initialize
+        window.onload = initCamera;
+    </script>
+</body>
+</html>

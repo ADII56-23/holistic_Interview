@@ -1,0 +1,32 @@
+<!-- Auth Section -->
+<div id="authContent" class="hidden">
+    <div class="max-w-md mx-auto mt-20 p-8 rounded-3xl glass">
+        <div id="loginForm">
+            <h3 class="text-2xl font-bold mb-6">Welcome Back</h3>
+            <div class="space-y-4">
+                <input type="email" id="loginEmail" placeholder="Email Address"
+                    class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-primary-600 transition-all">
+                <input type="password" id="loginPassword" placeholder="Password"
+                    class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-primary-600 transition-all">
+                <button onclick="window.recorder.login()"
+                    class="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-semibold transition-all shadow-xl shadow-primary-600/20">Login</button>
+            </div>
+            <p class="mt-6 text-center text-sm text-slate-400">Don't have an account? <a href="#"
+                    onclick="window.recorder.toggleAuth(false)" class="text-primary-600">Sign Up</a></p>
+        </div>
+        <div id="signupForm" class="hidden">
+            <h3 class="text-2xl font-bold mb-6">Create Account</h3>
+            <div class="space-y-4">
+                <input type="email" id="signupEmail" placeholder="Email Address"
+                    class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-primary-600 transition-all">
+                <input type="password" id="signupPassword" placeholder="Password"
+                    class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-primary-600 transition-all">
+                <button onclick="window.recorder.signup()"
+                    class="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-semibold transition-all shadow-xl shadow-primary-600/20">Sign
+                    Up</button>
+            </div>
+            <p class="mt-6 text-center text-sm text-slate-400">Already have an account? <a href="#"
+                    onclick="window.recorder.toggleAuth(true)" class="text-primary-600">Login</a></p>
+        </div>
+    </div>
+</div>
