@@ -1,8 +1,8 @@
 import React from 'react';
-import { Brain, ArrowLeft, ChevronRight } from 'lucide-react';
+import { Brain, ArrowLeft, ChevronRight, Code } from 'lucide-react';
 
 interface PreparationHubProps {
-  onSelectFeature: (feature: 'quiz' | 'interview') => void;
+  onSelectFeature: (feature: 'quiz' | 'interview' | 'coding') => void;
   onBack: () => void;
 }
 
@@ -10,19 +10,29 @@ const PreparationHub: React.FC<PreparationHubProps> = ({ onSelectFeature, onBack
   const features = [
     {
       id: 'quiz',
-      title: 'Topic Quiz',
+      title: 'Quizs',
       description: 'Test your knowledge on specific topics with dynamic AI-generated quizzes.',
       icon: <Brain className="w-8 h-8 text-green-500" />,
       color: 'bg-green-50',
       borderColor: 'hover:border-green-500',
       shadowColor: 'hover:shadow-green-500/10'
+    },
+
+    {
+      id: 'coding',
+      title: 'Coding Copilot',
+      description: 'Practice coding with a real AI-powered IDE and integrated terminal.',
+      icon: <Code className="w-8 h-8 text-blue-500" />,
+      color: 'bg-blue-50',
+      borderColor: 'hover:border-blue-500',
+      shadowColor: 'hover:shadow-blue-500/10'
     }
   ];
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-16 animate-fade-in">
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">Preparation Hub</h1>
+        <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">Preparation Mode</h1>
         <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium">
           Choose a practice mode to sharpen your skills and get ready for your next big opportunity.
         </p>
@@ -32,7 +42,7 @@ const PreparationHub: React.FC<PreparationHubProps> = ({ onSelectFeature, onBack
         {features.map((feature) => (
           <button
             key={feature.id}
-            onClick={() => onSelectFeature(feature.id as 'quiz' | 'interview')}
+            onClick={() => onSelectFeature(feature.id as 'quiz' | 'interview' | 'coding')}
             className={`flex flex-col items-start p-8 bg-white border border-slate-100 rounded-[2.5rem] transition-all duration-300 text-left group elevation-sm ${feature.borderColor} ${feature.shadowColor} hover:shadow-2xl`}
           >
             <div className={`p-4 ${feature.color} rounded-2xl mb-6 group-hover:scale-110 transition-transform`}>

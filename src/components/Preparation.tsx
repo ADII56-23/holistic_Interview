@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Monitor, Code, MessageSquare, Phone, ChevronDown } from 'lucide-react';
+import { Monitor, MessageSquare, Phone, ChevronDown } from 'lucide-react';
 
 interface PreparationProps {
   onBack: () => void;
@@ -26,18 +26,10 @@ const Preparation: React.FC<PreparationProps> = ({ onBack, onStartInterview, onR
       image: "https://illustrations.popsy.co/gray/remote-work.svg"
     },
     {
-      id: 'coding',
-      title: 'Coding Copilot',
-      description: 'AI explains it instantly — all while you are getting a doubt.',
-      tag: 'For Coding practice',
-      icon: <Code className="w-12 h-12" />,
-      image: "https://illustrations.popsy.co/gray/coding.svg"
-    },
-    {
       id: 'hirevue',
       title: 'HireVue Interview',
-      description: 'Detects questions in real time and suggests smart, tailored answers.',
-      tag: 'For Q&A interviews',
+      description: 'Explainable AI assessment of WPM, filler usage, pitch variance, and volume stability.',
+      tag: 'Premium AI Inference',
       icon: <MessageSquare className="w-12 h-12" />,
       image: "https://illustrations.popsy.co/gray/web-design.svg"
     },
@@ -50,6 +42,14 @@ const Preparation: React.FC<PreparationProps> = ({ onBack, onStartInterview, onR
       image: "https://illustrations.popsy.co/gray/communication.svg"
     }
   ];
+
+  const handleStartInterview = () => {
+    if (selectedType === 'phone') {
+      window.open('/?view=phone', '_blank');
+    } else {
+      onStartInterview(selectedType);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
@@ -115,7 +115,7 @@ const Preparation: React.FC<PreparationProps> = ({ onBack, onStartInterview, onR
       {/* CTA Button */}
       <div className="flex flex-col items-center gap-6">
         <button
-          onClick={() => onStartInterview(selectedType)}
+          onClick={handleStartInterview}
           className="px-12 py-4 bg-orange-500 text-white rounded-xl font-bold text-lg hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/20 active:scale-95 flex items-center gap-3"
         >
           Start Interview {selectedType === 'coding' ? 'with Copilot' : ''}

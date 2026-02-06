@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Mic, Square, Clock, UploadCloud, AlertCircle } from 'lucide-react';
+import { Camera, Mic, Square, Clock, BarChart3, AlertCircle } from 'lucide-react';
+import InterviewFeedback from './InterviewFeedback';
 
 const InterviewRecorder: React.FC = () => {
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -7,7 +8,7 @@ const InterviewRecorder: React.FC = () => {
   const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
   const [timer, setTimer] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [uploading] = useState(false);
   const [uploadedBlob, setUploadedBlob] = useState<Blob | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -106,15 +107,53 @@ const InterviewRecorder: React.FC = () => {
     return `${mins}:${secs}`;
   };
 
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+
   const handleUpload = async () => {
     if (!uploadedBlob) return;
-    setUploading(true);
-    // Simulate upload
-    setTimeout(() => {
-      alert(`Uploaded video size: ${(uploadedBlob.size / 1024 / 1024).toFixed(2)} MB`);
-      setUploading(false);
-    }, 2000);
+    setIsAnalyzing(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadedBlob, 'recording.webm');
+      formData.append('role', 'Candidate'); // Default role for standard recorder
+
+      const response = await fetch('http://localhost:8000/api/v1/analysis/analyze-video', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) throw new Error("Analysis failed");
+
+      const data = await response.json();
+      setAiAnalysis(data);
+    } catch (error) {
+      console.error("Analysis failed:", error);
+      alert("Analysis failed. Please try again.");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
+
+  if (aiAnalysis) {
+    return (
+      <InterviewFeedback
+        result={aiAnalysis}
+        onClose={() => setAiAnalysis(null)}
+      />
+    );
+  }
+
+  if (isAnalyzing) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 animate-fade-in">
+        <div className="w-16 h-16 border-4 border-slate-100 border-t-primary-600 rounded-full animate-spin mb-8"></div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">Analyzing Your Session...</h2>
+        <p className="text-slate-500">Evaluating speech, body language, and content delivery.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -145,7 +184,7 @@ const InterviewRecorder: React.FC = () => {
           <div className="absolute top-6 left-6 flex gap-4">
             <div className="px-4 py-2 bg-black/50 backdrop-blur-md rounded-full flex items-center gap-2 border border-white/10">
               <div className={`w-2 h-2 rounded-full ${recording ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`}></div>
-              <span className="text-xs font-bold tracking-wider uppercase">
+              <span className="text-xs font-bold tracking-wider uppercase text-white">
                 {recording ? 'REC' : 'Standby'}
               </span>
             </div>
@@ -196,8 +235,8 @@ const InterviewRecorder: React.FC = () => {
                   <>Uploading...</>
                 ) : (
                   <>
-                    <UploadCloud className="w-5 h-5 text-primary-600" />
-                    Save Recording
+                    <BarChart3 className="w-5 h-5 text-primary-600" />
+                    Analyze Performance
                   </>
                 )}
               </button>
@@ -214,7 +253,7 @@ const InterviewRecorder: React.FC = () => {
 
       <div className="mt-8 text-center">
         <p className="text-slate-500 text-sm">
-          Recorded data is processed locally. <br />
+          Recorded data is processed via automated evaluation. <br />
           Supported format: WebM (VP9/Opus).
         </p>
       </div>

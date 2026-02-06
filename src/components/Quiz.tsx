@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { CheckCircle2, ChevronRight, RotateCcw, ArrowLeft, Loader2, XCircle, Info } from 'lucide-react';
+import { CheckCircle2, ChevronRight, RotateCcw, ArrowLeft, Loader2, XCircle, Info, BookOpen } from 'lucide-react';
+import StudyGuide from './StudyGuide';
 
 interface Question {
   id: number;
@@ -12,12 +13,12 @@ interface QuizProps {
   onBack: () => void;
 }
 
-type Step = 'selection' | 'subtopic' | 'level' | 'loading' | 'quiz' | 'result';
+type Step = 'selection' | 'subtopic' | 'level' | 'loading' | 'quiz' | 'result' | 'study';
 
 const Quiz: React.FC<QuizProps> = ({ onBack }) => {
   const [step, setStep] = useState<Step>('selection');
   const [language, setLanguage] = useState('');
-  const [topic, setTopic] = useState('');
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Intermediate');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isAI, setIsAI] = useState(true);
@@ -59,9 +60,13 @@ const Quiz: React.FC<QuizProps> = ({ onBack }) => {
     setLanguage(selectedLang);
     setStep('subtopic');
     setSubTopicLoading(true);
+    setSelectedTopics([]); // Reset topics when language changes
 
     try {
       const response = await fetch(`http://localhost:8000/api/v1/questions/subtopics?language=${encodeURIComponent(selectedLang)}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       if (data.topics && data.topics.length > 0) {
         setSubTopics((prev: Record<string, string[]>) => ({
@@ -71,19 +76,30 @@ const Quiz: React.FC<QuizProps> = ({ onBack }) => {
       }
     } catch (error) {
       console.error('Failed to fetch AI subtopics, using fallback:', error);
+      // Fallback to default subtopics is already in state
     } finally {
       setSubTopicLoading(false);
     }
   };
 
-  const handleTopicSelect = (selectedTopic: string) => {
-    setTopic(selectedTopic);
-    setStep('level');
+  const toggleTopic = (selectedTopic: string) => {
+    setSelectedTopics(prev =>
+      prev.includes(selectedTopic)
+        ? prev.filter(t => t !== selectedTopic)
+        : [...prev, selectedTopic]
+    );
+  };
+
+  const handleTopicsContinue = () => {
+    if (selectedTopics.length > 0) {
+      setStep('level');
+    }
   };
 
   const startQuiz = async () => {
     setStep('loading');
-    const fullTopic = `${language} - ${topic}`;
+    const topicsString = selectedTopics.join(', ');
+    const fullTopic = `${language}: ${topicsString}`;
 
     try {
       const response = await fetch(`http://localhost:8000/api/v1/questions/generate-quiz?topic=${encodeURIComponent(fullTopic)}&difficulty=${difficulty}`, {
@@ -106,8 +122,8 @@ const Quiz: React.FC<QuizProps> = ({ onBack }) => {
       setIsAI(false);
       // Fallback to mock data if API fails
       const mockQuestions = [
-        { id: 1, question: `Basic ${topic} concept: What is the primary use of ${topic}?`, options: ["Development", "Design", "Testing", "Deployment"], correctAnswer: "Development" },
-        { id: 2, question: `Industry standard: Which of these is a best practice in ${topic}?`, options: ["Documentation", "No Testing", "Hardcoding", "Ignoring Errors"], correctAnswer: "Documentation" }
+        { id: 1, question: `Basic ${topicsString} concept: What is the primary use of ${selectedTopics[0]}?`, options: ["Development", "Design", "Testing", "Deployment"], correctAnswer: "Development" },
+        { id: 2, question: `Industry standard: Which of these is a best practice in ${language}?`, options: ["Documentation", "No Testing", "Hardcoding", "Ignoring Errors"], correctAnswer: "Documentation" }
       ];
       setQuestions(mockQuestions);
       setStep('quiz');
@@ -172,8 +188,8 @@ const Quiz: React.FC<QuizProps> = ({ onBack }) => {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-4 border border-blue-100">
             {language}
           </div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">Step 2: Choose Topic</h1>
-          <p className="text-slate-500 font-medium">Select a specific area of {language} to focus on.</p>
+          <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">Step 2: Choose Topics</h1>
+          <p className="text-slate-500 font-medium">Select one or multiple areas of {language} to focus on.</p>
         </div>
 
         {subTopicLoading ? (
@@ -182,18 +198,61 @@ const Quiz: React.FC<QuizProps> = ({ onBack }) => {
             <p className="text-slate-500 font-bold animate-pulse text-lg">AI is exploring {language} topics...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
-            {subTopics[language]?.map((t) => (
+          <>
+            <div
+              onClick={() => setStep('study')}
+              className="mb-8 p-6 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl text-white flex items-center justify-between cursor-pointer hover:scale-[1.02] transition-all shadow-xl shadow-blue-500/20 group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+                  <BookOpen className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-black text-lg">AI Study Guide for {language}</h3>
+                  <p className="text-blue-100 text-sm font-medium">Review concepts and examples before your quiz.</p>
+                </div>
+              </div>
+              <div className="bg-white text-blue-600 px-4 py-2 rounded-xl font-black text-xs group-hover:bg-blue-50 transition-colors uppercase tracking-widest">
+                Start Learning
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+              {subTopics[language]?.map((t) => {
+                const isSelected = selectedTopics.includes(t);
+                return (
+                  <button
+                    key={t}
+                    onClick={() => toggleTopic(t)}
+                    className={`p-6 border rounded-2xl transition-all text-left font-bold flex justify-between items-center group
+                      ${isSelected
+                        ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20'
+                        : 'bg-white border-slate-100 text-slate-700 hover:border-blue-500 hover:text-blue-600'}`}
+                  >
+                    {t}
+                    {isSelected ? (
+                      <CheckCircle2 className="w-4 h-4 text-white" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex flex-col items-center gap-6 mb-12">
               <button
-                key={t}
-                onClick={() => handleTopicSelect(t)}
-                className="p-6 bg-white border border-slate-100 rounded-2xl hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/5 transition-all text-left font-bold text-slate-700 hover:text-blue-600 flex justify-between items-center group"
+                onClick={handleTopicsContinue}
+                disabled={selectedTopics.length === 0}
+                className={`px-12 py-4 rounded-xl font-bold text-lg transition-all shadow-xl flex items-center gap-3
+                  ${selectedTopics.length > 0
+                    ? 'bg-slate-900 text-white hover:bg-slate-800'
+                    : 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'}`}
               >
-                {t}
-                <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1" />
+                Continue to Difficulty <ChevronRight className="w-5 h-5" />
               </button>
-            ))}
-          </div>
+            </div>
+          </>
         )}
 
         <div className="flex justify-center">
@@ -212,7 +271,7 @@ const Quiz: React.FC<QuizProps> = ({ onBack }) => {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-100 text-xs font-bold mb-4 border border-blue-100">
             <span className="text-blue-600">{language}</span>
             <span className="text-slate-300">•</span>
-            <span className="text-blue-600">{topic}</span>
+            <span className="text-blue-600">{selectedTopics.join(', ')}</span>
           </div>
           <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">Step 3: Difficulty Level</h1>
           <p className="text-slate-500 font-medium">Choose a level that matches your current skill set.</p>
@@ -263,7 +322,12 @@ const Quiz: React.FC<QuizProps> = ({ onBack }) => {
           <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
         </div>
         <h2 className="text-3xl font-black text-slate-900 mb-2">Generating Questions...</h2>
-        <p className="text-slate-500 font-medium italic">InterviewQuizAI is crafting 10 challenges for {language} {topic} ({difficulty})</p>
+        <p className="text-slate-500 font-medium italic">InterviewQuizAI is crafting 10 challenges for {language} ({difficulty})</p>
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          {selectedTopics.map(t => (
+            <span key={t} className="px-3 py-1 bg-slate-100 rounded-full text-xs font-bold text-slate-600">{t}</span>
+          ))}
+        </div>
       </div>
     );
   }
@@ -278,7 +342,7 @@ const Quiz: React.FC<QuizProps> = ({ onBack }) => {
           <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 text-amber-800 animate-slide-in">
             <Info className="w-5 h-5 flex-shrink-0" />
             <div className="text-sm font-bold">
-              Standard Mode: Using pre-recorded questions for {topic}.
+              Standard Mode: Using pre-recorded questions.
             </div>
           </div>
         )}
@@ -286,7 +350,7 @@ const Quiz: React.FC<QuizProps> = ({ onBack }) => {
           <div className="flex justify-between items-end mb-4">
             <div>
               <div className="text-xs font-bold text-blue-500 uppercase tracking-widest mb-1">Question {currentQuestionIdx + 1} of {questions.length}</div>
-              <div className="text-sm font-bold text-slate-900">{language} • {topic} • {difficulty}</div>
+              <div className="text-sm font-bold text-slate-900">{language} • {difficulty}</div>
             </div>
             <div className="text-xs font-bold text-slate-400">{Math.round(progress)}% Complete</div>
           </div>
@@ -354,14 +418,14 @@ const Quiz: React.FC<QuizProps> = ({ onBack }) => {
               onClick={onBack}
               className="px-8 py-4 bg-white text-slate-600 border border-slate-200 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all active:scale-95"
             >
-              Return to Features
+              Pratice more
             </button>
           </div>
         </div>
 
         <div className="space-y-6">
           <h3 className="text-2xl font-black text-slate-900 mb-8 px-4 flex items-center gap-3">
-            Detailed Review <span className="text-sm font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">{topic} • {difficulty}</span>
+            Detailed Review <span className="text-sm font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">{language} • {difficulty}</span>
           </h3>
           {questions.map((q, idx) => {
             const isCorrect = userAnswers[idx] === q.correctAnswer;
@@ -399,6 +463,10 @@ const Quiz: React.FC<QuizProps> = ({ onBack }) => {
         </div>
       </div>
     );
+  }
+
+  if (step === 'study') {
+    return <StudyGuide language={language} onBack={() => setStep('subtopic')} />;
   }
 
   return null;
