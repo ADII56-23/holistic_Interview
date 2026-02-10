@@ -19,3 +19,7 @@ langchain
 openai
 email-validator
 langchain-openai
+pypdf
+librosa
+soundfile
+retell-sdk

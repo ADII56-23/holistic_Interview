@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Dict, Any
 
 from app.schemas.interview import QuestionSchema, JDRequest, PersonalizedRequest
 from app.models.database import Question, get_db
@@ -45,11 +45,36 @@ async def generate_quiz(topic: str, difficulty: str = "Intermediate"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.post("/generate-interview")
+async def generate_interview(role: str):
+    try:
+        questions = await content_analyzer.generate_interview_questions(role)
+        return {"questions": questions}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/analyze-answer")
+async def analyze_answer(data: Dict[str, str]):
+    # data: {"question": "...", "answer": "..."}
+    try:
+        feedback = await content_analyzer.analyze_content(data.get("answer", ""), data.get("question", ""))
+        return feedback
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/subtopics")
 async def get_subtopics(language: str):
     try:
         topics = await content_analyzer.generate_subtopics(language)
         return {"topics": topics}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/tutorial")
+async def get_tutorial(language: str):
+    try:
+        tutorial = await content_analyzer.generate_tutorial(language)
+        return tutorial
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -11,7 +11,7 @@ app = FastAPI(
     title="Holistic Interview Intelligence API",
     description="Backend API for AI-powered interview analysis",
     version="1.0.0",
-)
+) # Reload triggered
 
 @app.on_event("startup")
 def startup_event():
@@ -39,8 +39,12 @@ async def health_check():
     }
 
 # Include routers
-from app.api.routes import interviews, questions, users
+from app.api.routes import interviews, questions, users, voice, ide, resumes, analysis
 
 app.include_router(interviews.router, prefix="/api/v1/interviews", tags=["interviews"])
 app.include_router(questions.router, prefix="/api/v1/questions", tags=["questions"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
+app.include_router(voice.router, prefix="/api/v1/voice", tags=["voice"])
+app.include_router(ide.router, prefix="/api/v1/ide", tags=["ide"])
+app.include_router(resumes.router, prefix="/api/v1/resumes", tags=["resumes"])
+app.include_router(analysis.router, prefix="/api/v1/analysis", tags=["analysis"])

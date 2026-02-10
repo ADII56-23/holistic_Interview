@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     
     # AI Keys
     OPENAI_API_KEY: str = ""
+    OPENROUTER_API_KEY: str = "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"
     
     class Config:
         env_file = ".env"

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera & Microphone Test</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .status {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .status.info {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .status.success {
+      background: #e8f5e9;
+      color: #388e3c;
+    }
+
+    .status.error {
+      background: #ffebee;
+      color: #d32f2f;
+    }
+
+    .status.warning {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 10px;
+      background: #000;
+      margin-bottom: 20px;
+      transform: scaleX(-1);
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .device-list {
+      background: #f5f5f5;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .device-item {
+      padding: 10px;
+      background: white;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .device-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .device-icon.video {
+      background: #e3f2fd;
+    }
+
+    .device-icon.audio {
+      background: #f3e5f5;
+    }
+
+    .volume-bar {
+      height: 20px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .volume-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4caf50, #8bc34a);
+      transition: width 0.1s;
+      width: 0%;
+    }
+
+    .log {
+      background: #263238;
+      color: #aed581;
+      padding: 15px;
+      border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+
+    .log-entry {
+      margin-bottom: 5px;
+    }
+
+    .log-entry.error {
+      color: #ef5350;
+    }
+
+    .log-entry.success {
+      color: #66bb6a;
+    }
+
+    .log-entry.info {
+      color: #42a5f5;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🎥 Camera & Microphone Test</h1>
+    <p class="subtitle">Test your devices before starting the interview</p>
+
+    <div id="status" class="status info">
+      Click "Start Test" to check your camera and microphone
+    </div>
+
+    <div id="devices" class="device-list" style="display: none;">
+      <h3 style="margin-bottom: 15px;">📱 Available Devices</h3>
+      <div id="deviceList"></div>
+    </div>
+
+    <video id="video" autoplay playsinline muted style="display: none;"></video>
+
+    <div id="volumeContainer" style="display: none;">
+      <h3 style="margin-bottom: 10px;">🎤 Microphone Level</h3>
+      <div class="volume-bar">
+        <div id="volumeFill" class="volume-fill"></div>
+      </div>
+    </div>
+
+    <div>
+      <button id="startBtn" onclick="startTest()">Start Test</button>
+      <button id="stopBtn" onclick="stopTest()" disabled>Stop Test</button>
+      <button onclick="location.reload()">Reset</button>
+    </div>
+
+    <div id="log" class="log"></div>
+  </div>
+
+  <script>
+    let stream = null;
+    let audioContext = null;
+    let analyser = null;
+    let animationId = null;
+
+    function log(message, type = 'info') {
+      const logDiv = document.getElementById('log');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      const timestamp = new Date().toLocaleTimeString();
+      entry.textContent = `[${timestamp}] ${message}`;
+      logDiv.appendChild(entry);
+      logDiv.scrollTop = logDiv.scrollHeight;
+      console.log(message);
+    }
+
+    function updateStatus(message, type) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.textContent = message;
+      statusDiv.className = `status ${type}`;
+    }
+
+    async function enumerateDevices() {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(d => d.kind === 'videoinput');
+        const audioDevices = devices.filter(d => d.kind === 'audioinput');
+
+        log(`Found ${videoDevices.length} camera(s) and ${audioDevices.length} microphone(s)`, 'success');
+
+        const deviceList = document.getElementById('deviceList');
+        deviceList.innerHTML = '';
+
+        videoDevices.forEach((device, i) => {
+          const div = document.createElement('div');
+          div.className = 'device-item';
+          div.innerHTML = `
+                        <div class="device-icon video">📹</div>
+                        <div>
+                            <strong>Camera ${i + 1}</strong><br>
+                            <small>${device.label || 'Unknown Camera'}</small>
+                        </div>
+                    `;
+          deviceList.appendChild(div);
+        });
+
+        audioDevices.forEach((device, i) => {
+          const div = document.createElement('div');
+          div.className = 'device-item';
+          div.innerHTML = `
+                        <div class="device-icon audio">🎤</div>
+                        <div>
+                            <strong>Microphone ${i + 1}</strong><br>
+                            <small>${device.label || 'Unknown Microphone'}</small>
+                        </div>
+                    `;
+          deviceList.appendChild(div);
+        });
+
+        document.getElementById('devices').style.display = 'block';
+
+        return { videoDevices, audioDevices };
+      } catch (err) {
+        log(`Failed to enumerate devices: ${err.message}`, 'error');
+        return { videoDevices: [], audioDevices: [] };
+      }
+    }
+
+    function setupAudioAnalyser(mediaStream) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioContext = new AudioContext();
+        analyser = audioContext.createAnalyser();
+        const source = audioContext.createMediaStreamSource(mediaStream);
+        source.connect(analyser);
+        analyser.fftSize = 256;
+
+        log('Audio analyser initialized', 'success');
+
+        // Start volume monitoring
+        monitorVolume();
+      } catch (err) {
+        log(`Audio analyser setup failed: ${err.message}`, 'error');
+      }
+    }
+
+    function monitorVolume() {
+      if (!analyser) return;
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      function update() {
+        analyser.getByteFrequencyData(dataArray);
+        const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+        const volume = Math.min(100, (average / 255) * 200);
+
+        document.getElementById('volumeFill').style.width = volume + '%';
+
+        animationId = requestAnimationFrame(update);
+      }
+
+      update();
+    }
+
+    async function startTest() {
+      log('Starting camera and microphone test...', 'info');
+      updateStatus('Requesting camera and microphone access...', 'info');
+
+      try {
+        // Check if API is available
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Camera/Microphone access is not supported in this browser');
+        }
+
+        // Enumerate devices first
+        const { videoDevices, audioDevices } = await enumerateDevices();
+
+        if (videoDevices.length === 0 && audioDevices.length === 0) {
+          throw new Error('No camera or microphone found. Please connect devices.');
+        }
+
+        // Try to get media stream
+        log('Requesting media stream...', 'info');
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
+
+        log('Media stream obtained successfully!', 'success');
+
+        // Display video
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+        video.style.display = 'block';
+        await video.play();
+
+        log('Video playback started', 'success');
+
+        // Setup audio monitoring
+        setupAudioAnalyser(stream);
+        document.getElementById('volumeContainer').style.display = 'block';
+
+        // Update UI
+        updateStatus('✅ Camera and microphone are working!', 'success');
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+
+        log('Test completed successfully! Speak into your microphone to see the volume meter.', 'success');
+
+      } catch (err) {
+        log(`Error: ${err.message}`, 'error');
+
+        let errorMessage = 'Failed to access camera/microphone. ';
+        let errorType = 'error';
+
+        if (err.name === 'NotFoundError') {
+          errorMessage += 'No camera or microphone found. Please connect your devices.';
+        } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          errorMessage += 'Permission denied. Please allow camera and microphone access in your browser.';
+        } else if (err.name === 'NotReadableError') {
+          errorMessage += 'Camera/microphone is in use by another application. Please close other apps.';
+        } else {
+          errorMessage += err.message;
+        }
+
+        updateStatus(errorMessage, errorType);
+      }
+    }
+
+    function stopTest() {
+      log('Stopping test...', 'info');
+
+      if (stream) {
+        stream.getTracks().forEach(track => {
+          track.stop();
+          log(`Stopped ${track.kind} track`, 'info');
+        });
+        stream = null;
+      }
+
+      if (audioContext) {
+        audioContext.close();
+        audioContext = null;
+      }
+
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+      }
+
+      document.getElementById('video').style.display = 'none';
+      document.getElementById('volumeContainer').style.display = 'none';
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+
+      updateStatus('Test stopped. Click "Start Test" to try again.', 'info');
+      log('Test stopped successfully', 'success');
+    }
+
+    // Initialize
+    log('Camera & Microphone Test Tool loaded', 'info');
+    log('Click "Start Test" to begin', 'info');
+  </script>
+</body>
+
+</html>
